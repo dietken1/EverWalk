@@ -70,3 +70,30 @@ CREATE TABLE IF NOT EXISTS video_jobs (
   INDEX idx_status (status),
   INDEX idx_luma_job_id (luma_job_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 메시지 (사용자 <-> 반려동물)
+CREATE TABLE IF NOT EXISTS messages (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  pet_id BIGINT NOT NULL,
+  sender_type VARCHAR(20) NOT NULL COMMENT 'USER, PET',
+  content TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE,
+  INDEX idx_pet_sender (pet_id, sender_type),
+  INDEX idx_pet_created (pet_id, created_at DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 비밀일기 (반려동물이 작성)
+CREATE TABLE IF NOT EXISTS diary_entries (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  pet_id BIGINT NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  content TEXT NOT NULL,
+  mood VARCHAR(50) COMMENT 'happy, playful, sleepy, missing_you, grateful',
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE,
+  INDEX idx_pet_created (pet_id, created_at DESC),
+  INDEX idx_mood (mood)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
